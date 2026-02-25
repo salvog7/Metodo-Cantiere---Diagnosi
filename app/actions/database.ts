@@ -216,7 +216,7 @@ export async function createUtentiAnalisiLampo(
   console.log('[v0] Creating utenti record - PRIMARY KEY COLUMN ID:', userId)
   
   try {
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('utenti')
       .insert({
         id: userId,
@@ -230,11 +230,27 @@ export async function createUtentiAnalisiLampo(
       })
       .select()
 
+    // Duplicate key: user already exists (e.g. from auth trigger). Update only form fields, preserve payment data.
+    const isDuplicateKey = error?.code === '23505' || error?.message?.includes('duplicate key')
+    if (isDuplicateKey) {
+      const { data: updateData, error: updateError } = await supabase
+        .from('utenti')
+        .update({ email, nome, cognome, azienda, updated_at: new Date().toISOString() })
+        .eq('id', userId)
+        .select()
+      if (updateError) {
+        console.error('[v0] Error updating utenti:', JSON.stringify(updateError))
+        throw new Error(`Failed to update user record: ${updateError.message}`)
+      }
+      console.log('[v0] Utenti record updated (already existed):', updateData)
+      return updateData?.[0]
+    }
+
     // Se la tabella utenti non esiste, crea nella vecchia tabella utenti_analisi_lampo
     if (error && error.code === 'PGRST205') {
       console.log('[v0] Tabella utenti non esiste, uso fallback a utenti_analisi_lampo per creazione')
       
-      const { data: fallbackData, error: fallbackError } = await supabase
+      let { data: fallbackData, error: fallbackError } = await supabase
         .from('utenti_analisi_lampo')
         .insert({
           id: userId,
@@ -247,6 +263,20 @@ export async function createUtentiAnalisiLampo(
           form_status: null,
         })
         .select()
+
+      const isFallbackDuplicate = fallbackError?.code === '23505' || fallbackError?.message?.includes('duplicate key')
+      if (isFallbackDuplicate) {
+        const { data: updateData, error: updateError } = await supabase
+          .from('utenti_analisi_lampo')
+          .update({ email, nome, cognome, azienda })
+          .eq('id', userId)
+          .select()
+        if (updateError) {
+          console.error('[v0] Error updating utenti_analisi_lampo:', JSON.stringify(updateError))
+          throw new Error(`Failed to update user record: ${updateError.message}`)
+        }
+        return updateData?.[0]
+      }
 
       if (fallbackError) {
         console.error('[v0] Error creating utenti_analisi_lampo:', JSON.stringify(fallbackError))
