@@ -63,7 +63,7 @@ export default async function ProdottiPage() {
   const customerCompany = utentiData?.azienda || user.user_metadata?.azienda || ''
 
   const formLinkAnalisi = `/form?user_id=${encodeURIComponent(userId)}&userId=${encodeURIComponent(userId)}&email=${encodeURIComponent(customerEmail)}&nome=${encodeURIComponent(customerName)}&cognome=${encodeURIComponent(customerSurname)}&azienda=${encodeURIComponent(customerCompany)}`
-  const formLinkDiagnosi = '/form-diagnosi'
+  const formLinkDiagnosi = `/form?product=diagnosi-strategica&user_id=${encodeURIComponent(userId)}&userId=${encodeURIComponent(userId)}&email=${encodeURIComponent(customerEmail)}&nome=${encodeURIComponent(customerName)}&cognome=${encodeURIComponent(customerSurname)}&azienda=${encodeURIComponent(customerCompany)}`
 
   function getCardLink(state: ProductState, formLink: string, paymentLink: string, diagnosiLink: string) {
     switch (state) {
@@ -97,15 +97,6 @@ export default async function ProdottiPage() {
           </p>
         </div>
 
-        <div className="mb-8 flex justify-start">
-          <Link
-            href="/"
-            className="inline-flex items-center justify-center rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100 transition-colors"
-          >
-            Indietro: torna alla home
-          </Link>
-        </div>
-
         <div className="grid md:grid-cols-2 gap-8">
           {/* Analisi Lampo */}
           <ProductCard
@@ -122,7 +113,7 @@ export default async function ProdottiPage() {
             ctaLabels={{
               not_paid: 'Avanti: scegli Analisi Lampo',
               fill_form: 'Vai al form Analisi Lampo',
-              waiting: 'Diagnosi in preparazione',
+              waiting: 'Attendi che la diagnosi sia pronta',
               view_diagnosi: 'Visualizza la tua Analisi',
             }}
           />
@@ -141,7 +132,7 @@ export default async function ProdottiPage() {
             ctaLabels={{
               not_paid: 'Avanti: scegli Diagnosi Strategica',
               fill_form: 'Vai al form Diagnosi Strategica',
-              waiting: 'Diagnosi in preparazione',
+              waiting: 'Attendi che la diagnosi sia pronta',
               view_diagnosi: 'Visualizza la tua Diagnosi',
             }}
           />
@@ -182,8 +173,8 @@ function ProductCard({
       case 'waiting':
         return (
           <div className="mb-4 rounded-lg bg-amber-50 border border-amber-200 p-3">
-            <p className="text-amber-800 text-sm font-medium">⏳ Diagnosi in preparazione</p>
-            <p className="text-amber-700 text-xs mt-1">Ti avviseremo quando sarà pronta per la consultazione</p>
+            <p className="text-amber-800 text-sm font-medium">⏳ Attendi che la diagnosi sia pronta</p>
+            <p className="text-amber-700 text-xs mt-1">Il pulsante sarà attivo quando la diagnosi sarà disponibile per la consultazione</p>
           </div>
         )
       case 'view_diagnosi':

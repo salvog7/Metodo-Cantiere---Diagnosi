@@ -15,16 +15,15 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
-  INSERT INTO public.utenti (id, email, nome, cognome, azienda, paid_analisi, paid_diagnosi, form_status)
+  INSERT INTO public.utenti (id, email, nome, cognome, azienda, paid_analisi, paid_diagnosi)
   VALUES (
     NEW.id,
     NEW.email,
     COALESCE(NEW.raw_user_meta_data->>'nome', ''),
     COALESCE(NEW.raw_user_meta_data->>'cognome', ''),
     COALESCE(NEW.raw_user_meta_data->>'azienda', ''),
-    NULL,
-    NULL,
-    NULL
+    false,
+    false
   )
   ON CONFLICT (id) DO NOTHING;
   RETURN NEW;

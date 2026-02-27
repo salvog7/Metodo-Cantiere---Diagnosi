@@ -1,7 +1,3 @@
-'use client'
-
-import HeaderWithProfile from '@/components/header-with-profile'
-
 export default function SuccessLayout({
   children,
 }: {
@@ -9,7 +5,6 @@ export default function SuccessLayout({
 }) {
   return (
     <div className="min-h-screen bg-neutral-50">
-      <HeaderWithProfile />
       <div className="py-12 px-4">
         {children}
       </div>

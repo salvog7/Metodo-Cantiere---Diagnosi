@@ -111,6 +111,7 @@ export async function POST(request: NextRequest) {
       tipo,
       timestamp: now,
       reviewLink,
+      sections: sectionDataByIndex,
       dati_aziendali: {
         nomeReferente: datiAz.nomeReferente,
         nomeAzienda: datiAz.nomeAzienda,
@@ -168,8 +169,14 @@ export async function POST(request: NextRequest) {
     let n8nSuccess = false
     let secondWebhookSuccess = false
 
+    const n8nWebhookUrl =
+      tipo === "diagnosi_strategica"
+        ? (process.env.N8N_WEBHOOK_DIAGNOSI_STRATEGICA ||
+          "https://nextstepsrl.app.n8n.cloud/webhook/diagnosi-strategica")
+        : "https://nextstepsrl.app.n8n.cloud/webhook/analisi-lampo"
+
     try {
-      const n8nResponse = await fetch("https://nextstepsrl.app.n8n.cloud/webhook/analisi-lampo", {
+      const n8nResponse = await fetch(n8nWebhookUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

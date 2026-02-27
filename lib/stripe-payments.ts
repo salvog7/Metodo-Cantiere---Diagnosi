@@ -32,13 +32,11 @@ export async function syncCheckoutSessionToDatabase(
   }
 
   const adminSupabase = createAdminClient()
-  const amountPaid = checkoutSession.amount_total ? checkoutSession.amount_total / 100 : null
   const customerEmail = checkoutSession.customer_email || checkoutSession.metadata?.customer_email || ''
   const paidColumn = getPaidColumn(productId)
 
   const updateData: Record<string, unknown> = {
     updated_at: new Date().toISOString(),
-    amount_paid: amountPaid,
     [paidColumn]: true,
   }
 

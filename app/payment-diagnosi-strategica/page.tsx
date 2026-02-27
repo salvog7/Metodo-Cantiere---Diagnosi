@@ -4,7 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { StripeCheckout } from '@/components/stripe-checkout'
-import { getUtentiDiagnosiStrategica, createUtentiDiagnosiStrategica, getFormStatus } from '@/app/actions/database'
+import { getUtentiDiagnosiStrategica, createUtentiDiagnosiStrategica, getFormStatus, hasDiagnosiEnabled } from '@/app/actions/database'
 import { isPaidValue } from '@/lib/utils'
 import type { Metadata } from 'next'
 
@@ -56,8 +56,6 @@ export default async function PaymentDiagnosiStrategicaPage() {
   // Controlla lo stato del pagamento per Diagnosi Strategica
   const isPaidDiagnosi = isPaidValue(utentiData?.paid_diagnosi)
   
-  console.log('[v0] Payment diagnosi page - isPaidDiagnosi:', isPaidDiagnosi)
-
   // Se non ha pagato, mostra il box di pagamento
   if (!isPaidDiagnosi) {
     return (
@@ -120,110 +118,23 @@ export default async function PaymentDiagnosiStrategicaPage() {
     )
   }
 
-  // Se ha pagato, controlla il form_status dalla tabella submissions
+  // Se ha pagato, reindirizza: non mostrare la pagina payment
   const formStatus = await getFormStatus(userId, 'diagnosi-strategica')
-  
-  console.log('[v0] Payment diagnosi page - formStatus:', formStatus)
+  const formIncomplete = formStatus === 'incomplete' || formStatus === null || formStatus === undefined
 
-  if (formStatus === 'completed') {
-    // L'utente ha pagato e completato il form
-    return (
-      <div className="min-h-screen bg-neutral-50 py-12">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="flex flex-col items-center justify-center mb-8">
-            <Image
-              src="/logo-metodo-cantiere.png"
-              alt="Metodo Cantiere"
-              width={280}
-              height={80}
-              priority
-              className="h-16 w-auto"
-            />
-            <p className="text-2xl font-bold text-primary mt-2">Diagnosi Strategica</p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-8 text-center">
-            <h2 className="text-2xl font-semibold text-neutral-900 mb-6">
-              La tua Diagnosi Strategica di Metodo Cantiere® sarà pronta tra circa 10 giorni!
-            </h2>
-            <Button asChild variant="outline" className="border-neutral-300">
-              <Link href="/prodotti">Indietro: torna ai prodotti</Link>
-            </Button>
-          </div>
-        </div>
-      </div>
-    )
+  if (formIncomplete) {
+    const customerName = utentiData?.nome || user.user_metadata?.nome || ''
+    const customerSurname = utentiData?.cognome || user.user_metadata?.cognome || ''
+    const customerCompany = utentiData?.azienda || user.user_metadata?.azienda || ''
+    const resume = formStatus && formStatus !== 'incomplete' ? '&resume=true' : ''
+    const formUrl = `/form?product=diagnosi-strategica&user_id=${encodeURIComponent(userId)}&userId=${encodeURIComponent(userId)}&email=${encodeURIComponent(customerEmail)}&nome=${encodeURIComponent(customerName)}&cognome=${encodeURIComponent(customerSurname)}&azienda=${encodeURIComponent(customerCompany)}${resume}`
+    redirect(formUrl)
   }
 
-  // Se ha pagato ma il form non è completato
-  return (
-    <div className="min-h-screen bg-neutral-50 py-12">
-      <div className="max-w-4xl mx-auto px-4">
-        <div className="mb-6">
-          <Button asChild variant="outline" className="border-neutral-300">
-            <Link href="/prodotti">Indietro: torna ai prodotti</Link>
-          </Button>
-        </div>
+  const diagnosiReady = await hasDiagnosiEnabled(userId, 'diagnosi_strategica')
+  if (diagnosiReady) {
+    redirect('/diagnosi/diagnosi-strategica')
+  }
 
-        <div className="flex flex-col items-center justify-center mb-8">
-            <Image
-              src="/logo-metodo-cantiere.png"
-              alt="Metodo Cantiere"
-              width={280}
-              height={80}
-              priority
-              className="w-auto h-auto"
-            />
-            <p className="text-2xl font-bold text-primary mt-2">Diagnosi Strategica</p>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-8 mb-8">
-          <h1 className="text-3xl font-bold text-neutral-900 mb-2 text-balance">
-            Diagnosi Strategica
-          </h1>
-          <p className="text-neutral-600 mb-4">
-            Analisi approfondita e roadmap operativa per la crescita digitale
-          </p>
-        </div>
-
-        {(formStatus === 'incomplete' || formStatus === null || formStatus === undefined) ? (
-          // L'utente ha pagato ma non ha iniziato il form (o form_status è null dopo il pagamento)
-          <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-8 text-center">
-            <h2 className="text-2xl font-semibold text-neutral-900 mb-6">
-              Completa il form per ricevere la tua Diagnosi Strategica di Metodo Cantiere®
-            </h2>
-            <Button
-              asChild
-              size="lg"
-              className="bg-primary hover:bg-primary/90 text-white px-8 h-12"
-            >
-              <Link
-                href="/form-diagnosi"
-              >
-                Avanti: apri il percorso Diagnosi Strategica
-              </Link>
-            </Button>
-          </div>
-        ) : (
-          // L'utente ha pagato e il form è in corso
-          <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-8 text-center">
-            <h2 className="text-2xl font-semibold text-neutral-900 mb-6">
-              Porta a termine il form per ricevere la tua Diagnosi Strategica di Metodo Cantiere®
-            </h2>
-            <Button
-              asChild
-              size="lg"
-              className="bg-primary hover:bg-primary/90 text-white px-8 h-12"
-            >
-              <Link
-                href="/form-diagnosi?resume=true"
-              >
-                Avanti: riprendi il percorso Diagnosi Strategica
-              </Link>
-            </Button>
-          </div>
-        )}
-      </div>
-    </div>
-  )
+  redirect('/prodotti')
 }

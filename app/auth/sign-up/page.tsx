@@ -14,7 +14,6 @@ import { checkEmailExists } from '@/app/actions/database'
 export default function SignUpPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
   const [nome, setNome] = useState('')
   const [cognome, setCognome] = useState('')
   const [azienda, setAzienda] = useState('')
@@ -33,16 +32,6 @@ export default function SignUpPage() {
     // Validazioni
     if (!nome.trim() || !cognome.trim() || !azienda.trim()) {
       setError('Tutti i campi sono obbligatori')
-      return
-    }
-
-    if (password !== confirmPassword) {
-      setError('Le password non corrispondono')
-      return
-    }
-
-    if (password.length < 6) {
-      setError('La password deve contenere almeno 6 caratteri')
       return
     }
 
@@ -221,21 +210,6 @@ export default function SignUpPage() {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required
-                className="h-11"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="text-neutral-900">
-                Conferma Password
-              </Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                placeholder="••••••••"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 className="h-11"
               />
