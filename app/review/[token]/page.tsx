@@ -6,6 +6,7 @@ import { DiagnosiViewer } from '@/components/diagnosi-viewer'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable'
 import { Pencil, Eye, Save, Loader2, CheckCircle, AlertCircle, FileDown } from 'lucide-react'
 
 interface DiagnosiData {
@@ -47,7 +48,7 @@ export default function ReviewPage() {
         return
       }
       setDiagnosi(json.diagnosi)
-      setDraft(json.diagnosi.diagnosi)
+      setDraft(json.diagnosi.diagnosi ?? '')
     } catch {
       setError('Impossibile connettersi al server')
     } finally {
@@ -258,12 +259,25 @@ export default function ReviewPage() {
         {/* Content */}
         <div className="bg-white rounded-xl shadow-lg border border-neutral-200 p-8 md:p-12 relative">
           {editing ? (
-            <Textarea
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              className="min-h-[600px] font-mono text-sm leading-relaxed"
-              placeholder="Inserisci il contenuto della diagnosi in formato Markdown..."
-            />
+            <ResizablePanelGroup direction="horizontal" className="min-h-[600px]">
+              <ResizablePanel defaultSize={50} minSize={30}>
+                <Textarea
+                  value={draft}
+                  onChange={(e) => setDraft(e.target.value)}
+                  className="min-h-[600px] h-full w-full resize-none font-mono text-sm leading-relaxed rounded-r-none border-r-0"
+                  placeholder="Markdown a sinistra..."
+                />
+              </ResizablePanel>
+              <ResizableHandle withHandle />
+              <ResizablePanel defaultSize={50} minSize={30}>
+                <div className="min-h-[600px] h-full overflow-auto border border-input rounded-r-lg bg-background p-6">
+                  <div className="mb-6 pb-4 border-b border-neutral-200">
+                    <p className="text-sm text-neutral-500 font-medium">Anteprima</p>
+                  </div>
+                  <DiagnosiViewer content={draft || ' '} />
+                </div>
+              </ResizablePanel>
+            </ResizablePanelGroup>
           ) : (
             <>
               {diagnosi.diagnosi ? (
