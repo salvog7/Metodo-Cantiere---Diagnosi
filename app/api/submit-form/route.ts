@@ -170,7 +170,9 @@ export async function POST(request: NextRequest) {
     let secondWebhookSuccess = false
 
     const n8nWebhookUrl =
-      process.env.N8N_WEBHOOK_URL || "https://nextstepsrl.app.n8n.cloud/webhook/diagnosi"
+      tipo === "analisi_lampo"
+        ? (process.env.N8N_WEBHOOK_ANALISI_LAMPO || "https://nextstepsrl.app.n8n.cloud/webhook/analisi-lampo")
+        : (process.env.N8N_WEBHOOK_DIAGNOSI || "https://nextstepsrl.app.n8n.cloud/webhook/diagnosi")
 
     try {
       const n8nResponse = await fetch(n8nWebhookUrl, {
@@ -178,7 +180,7 @@ export async function POST(request: NextRequest) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ user_id: userId, tipo }),
+        body: JSON.stringify(webhookData),
       })
 
       if (!n8nResponse.ok) {
