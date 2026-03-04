@@ -92,78 +92,8 @@ export async function POST(request: NextRequest) {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || request.nextUrl.origin
     const reviewLink = reviewToken ? `${baseUrl}/review/${reviewToken}` : null
 
-    const sectionDataByIndex: Record<number, any> = {}
-    for (const section of sections) {
-      sectionDataByIndex[section.sectionIndex] = section.data
-    }
-
-    const datiAz = sectionDataByIndex[0] || {}
-    const visWeb = sectionDataByIndex[1] || {}
-    const acqCont = sectionDataByIndex[2] || {}
-    const gestInt = sectionDataByIndex[3] || {}
-    const followUp = sectionDataByIndex[4] || {}
-    const competitor = sectionDataByIndex[5] || {}
-    const kpi = sectionDataByIndex[6] || {}
-    const obiettivi = sectionDataByIndex[7] || {}
-
     const webhookData = {
-      userId,
-      tipo,
-      timestamp: now,
-      reviewLink,
-      sections: sectionDataByIndex,
-      dati_aziendali: {
-        nomeReferente: datiAz.nomeReferente,
-        nomeAzienda: datiAz.nomeAzienda,
-        descrizioneAzienda: datiAz.descrizioneAzienda,
-        ruoloReferente: datiAz.ruoloReferente,
-        emailAziendale: datiAz.emailAziendale,
-        telefono: datiAz.telefono,
-        sitoWeb: datiAz.sitoWeb,
-        profiloSocial: datiAz.profiloSocial,
-        settorePrincipale: datiAz.settorePrincipale,
-        zonaOperativa: datiAz.zonaOperativa,
-        rangeFatturato: datiAz.rangeFatturato,
-      },
-      visibilita_web: {
-        sitoWebFunzionante: visWeb.sitoWebFunzionante,
-        googleMyBusiness: visWeb.googleMyBusiness,
-        presenzaSocial: visWeb.presenzaSocial,
-      },
-      acquisizione_contatti: {
-        diversificazioneCanali: acqCont.diversificazioneCanali,
-        nuoviContattiMese: acqCont.nuoviContattiMese,
-        tassoConversione: acqCont.tassoConversione,
-        formCTA: acqCont.formCTA,
-      },
-      gestione_interna: {
-        usoCRM: gestInt.usoCRM,
-        preventiviMese: gestInt.preventiviMese,
-        followUpPreventivo: gestInt.followUpPreventivo,
-        misurazioneTassoAccettazione: gestInt.misurazioneTassoAccettazione,
-        conoscenzaColliBottiglia: gestInt.conoscenzaColliBottiglia,
-      },
-      follow_up: {
-        velocitaRisposta: followUp.velocitaRisposta,
-        chiRisponde: followUp.chiRisponde,
-        sistemaFollowUp: followUp.sistemaFollowUp,
-      },
-      competitor: {
-        competitors: competitor.competitors,
-        individuazioneCompetitor: competitor.individuazioneCompetitor,
-        propostoValore: competitor.propostoValore,
-        visibilitaOnline: competitor.visibilitaOnline,
-      },
-      kpi_sintetici: {
-        tempoMedioRisposta: kpi.tempoMedioRisposta,
-        percentualeFollowUp: kpi.percentualeFollowUp,
-        leadMensili: kpi.leadMensili,
-        tassoChiusura: kpi.tassoChiusura,
-      },
-      obiettivi: {
-        chiarezzaObiettivo: obiettivi.chiarezzaObiettivo,
-        realismoObiettivo: obiettivi.realismoObiettivo,
-      },
+      user_id: userId,
     }
 
     let n8nSuccess = false
