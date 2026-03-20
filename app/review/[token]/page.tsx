@@ -64,12 +64,24 @@ export default function ReviewPage() {
   const fetchDiagnosi = useCallback(async () => {
     try {
       const res = await fetch(`/api/review/${token}`)
-      const json = await res.json()
+      let json: { error?: string; diagnosi?: DiagnosiData } | null = null
+      try {
+        json = (await res.json()) as { error?: string; diagnosi?: DiagnosiData }
+      } catch {
+        setError(
+          'Risposta del server non valida. Se il problema persiste, verifica su Vercel le variabili NEXT_PUBLIC_SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY.'
+        )
+        return
+      }
       if (!res.ok) {
-        setError(json.error || 'Errore nel caricamento')
+        setError(json?.error || 'Errore nel caricamento')
         return
       }
       const row = json.diagnosi
+      if (!row?.id) {
+        setError('Risposta del server incompleta.')
+        return
+      }
       setDiagnosi({
         ...row,
         progresso: row.progresso === 'completato' ? 'completato' : 'in corso',
