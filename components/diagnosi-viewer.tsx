@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
-import { contentToSafeHtml } from '@/lib/diagnosi-content'
+import { contentToSafeHtml } from '@/lib/diagnosi-sanitize'
 
 interface DiagnosiViewerProps {
   content: string

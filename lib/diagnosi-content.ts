@@ -1,4 +1,3 @@
-import DOMPurify from 'isomorphic-dompurify'
 import { marked } from 'marked'
 
 /** HTML fragment / document: trim-start then `<` + letter, `?`, or `!` (DOCTYPE, comments). */
@@ -8,31 +7,17 @@ export function isLikelyHtmlFragment(s: string): boolean {
   return /^<[a-z?!]/i.test(t)
 }
 
-export function sanitizeDiagnosiHtml(dirty: string): string {
-  return DOMPurify.sanitize(dirty, {
-    USE_PROFILES: { html: true },
-    ADD_TAGS: ['section', 'footer'],
-    ADD_ATTR: ['target', 'rel', 'class'],
-  }) as string
-}
-
 export function markdownToHtml(md: string): string {
   return marked.parse(md, { async: false, gfm: true }) as string
 }
 
-/** Display: legacy Markdown → HTML, HTML → sanitized HTML. */
-export function contentToSafeHtml(content: string): string {
-  const raw = content.trim()
-  if (!raw) return ''
-  const html = isLikelyHtmlFragment(content) ? content : markdownToHtml(content)
-  return sanitizeDiagnosiHtml(html)
-}
-
-/** Persist: sanitize HTML; leave non-HTML (e.g. old Markdown) unchanged. */
+/**
+ * Persist: store input as-is (sanitization happens at display time via contentToSafeHtml).
+ * Only trims empty strings.
+ */
 export function normalizeDiagnosiForStorage(input: string): string {
   if (!input.trim()) return ''
-  if (!isLikelyHtmlFragment(input)) return input
-  return sanitizeDiagnosiHtml(input)
+  return input
 }
 
 export type DiagnosiDisplayRow = {
