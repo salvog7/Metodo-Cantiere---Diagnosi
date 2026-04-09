@@ -418,6 +418,8 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 0.88rem;
   line-height: 1.5;
+  /* Emoji / pittogrammi allineati in modo più stabile rispetto al testo */
+  font-variant-emoji: emoji;
 }
 
 .diagnosi-table thead th {
@@ -434,7 +436,7 @@ body {
 .diagnosi-table tbody td {
   padding: 0.65rem 1rem;
   border: 1px solid #e5e5e5;
-  vertical-align: top;
+  vertical-align: middle;
   color: #444;
 }
 
@@ -449,100 +451,72 @@ body {
 
 /* ---- Status indicators ---- */
 
-.status-ok {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.35rem;
-  height: 1.35rem;
+.status-ok,
+.status-warning,
+.status-missing {
+  display: inline-block;
+  box-sizing: border-box;
+  width: 1.35em;
+  height: 1.35em;
   border-radius: 50%;
+  font-family: Arial, Helvetica, 'Segoe UI Symbol', 'Noto Sans Symbols 2', sans-serif;
+  font-size: 0.88em;
+  font-weight: 700;
+  line-height: 1.35em;
+  text-align: center;
+  margin-right: 0.45em;
+  vertical-align: middle;
+}
+
+.status-ok {
   background: #e6f7e9;
   color: #1a8a3a;
-  font-size: 0.85rem;
-  font-weight: 700;
-  margin-right: 0.35rem;
-  vertical-align: middle;
-  line-height: 1;
 }
 
 .status-warning {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.35rem;
-  height: 1.35rem;
-  border-radius: 50%;
   background: #fff5e0;
   color: #c28100;
-  font-size: 0.85rem;
-  font-weight: 700;
-  margin-right: 0.35rem;
-  vertical-align: middle;
-  line-height: 1;
 }
 
 .status-missing {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.35rem;
-  height: 1.35rem;
-  border-radius: 50%;
   background: #fde8e8;
   color: #c62828;
-  font-size: 0.85rem;
-  font-weight: 700;
-  margin-right: 0.35rem;
-  vertical-align: middle;
-  line-height: 1;
 }
 
 /* ---- Priority labels ---- */
 
-.priority-urgent {
+.priority-urgent,
+.priority-high,
+.priority-strategic,
+.priority-maintain {
   display: inline-block;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 0.75rem;
+  font-size: 0.75em;
   font-weight: 700;
   letter-spacing: 0.04em;
-  padding: 0.15rem 0.55rem;
+  padding: 0.12em 0.5em;
   border-radius: 3px;
+  line-height: 1.25;
+  vertical-align: middle;
+  margin-right: 0.35em;
+}
+
+.priority-urgent {
   background: #c62828;
   color: #fff;
 }
 
 .priority-high {
-  display: inline-block;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  padding: 0.15rem 0.55rem;
-  border-radius: 3px;
   background: #e8712a;
   color: #fff;
 }
 
 .priority-strategic {
-  display: inline-block;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  padding: 0.15rem 0.55rem;
-  border-radius: 3px;
   background: #1565c0;
   color: #fff;
 }
 
 .priority-maintain {
-  display: inline-block;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  padding: 0.15rem 0.55rem;
-  border-radius: 3px;
   background: #2e7d32;
   color: #fff;
 }
@@ -602,6 +576,64 @@ body {
   margin-bottom: 0;
 }
 
+/* ---- PDF export (solo clone html2canvas: vedi lib/export-diagnosi-pdf.ts) ---- */
+
+/* Larghezza effettiva impostata in onclone (export) per allinearsi alla preview. */
+.pdf-export-active {
+  box-sizing: border-box;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.pdf-export-active .diagnosi-table {
+  width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.pdf-export-active .diagnosi-table thead th {
+  vertical-align: top;
+}
+
+.pdf-export-active .diagnosi-highlight,
+.pdf-export-active .section-header,
+.pdf-export-active .section-header-bar {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.pdf-export-active .diagnosi-table tr {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+/* Paragrafi / titoli: usati dalla modalità pagebreak `css` (senza avoid-all). */
+.pdf-export-active .diagnosi-document p,
+.pdf-export-active .diagnosi-document li,
+.pdf-export-active .diagnosi-document h3 {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+/* Wrapper flex iniettato da wrapIconCellsForExport() sulle celle con icone. */
+.pdf-export-active [data-pdf-icon-wrap] {
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 0 !important;
+}
+
+.pdf-export-active [data-pdf-icon-wrap] > .status-ok,
+.pdf-export-active [data-pdf-icon-wrap] > .status-warning,
+.pdf-export-active [data-pdf-icon-wrap] > .status-missing,
+.pdf-export-active [data-pdf-icon-wrap] > .priority-urgent,
+.pdf-export-active [data-pdf-icon-wrap] > .priority-high,
+.pdf-export-active [data-pdf-icon-wrap] > .priority-strategic,
+.pdf-export-active [data-pdf-icon-wrap] > .priority-maintain {
+  flex-shrink: 0;
+}
+
 /* ---- Responsive ---- */
 
 @media (max-width: 640px) {
@@ -639,5 +671,63 @@ body {
   .section-header-bar {
     flex-direction: column;
     gap: 0.15rem;
+  }
+}
+
+/* ---- Stampa browser (PDF fedele alla preview) ---- */
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm;
+  }
+
+  html {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  body {
+    background: white !important;
+    color: #1a1a1a;
+  }
+
+  /* In stampa non usiamo la larghezza forzata dell’export html2canvas */
+  .pdf-export-active {
+    width: auto !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+
+  .diagnosi-cover {
+    min-height: auto;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .diagnosi-highlight,
+  .section-header,
+  .section-header-bar {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .diagnosi-table {
+    break-inside: auto;
+  }
+
+  .diagnosi-table tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .diagnosi-document p,
+  .diagnosi-document li {
+    orphans: 3;
+    widows: 3;
+  }
+
+  .pdf-content {
+    break-inside: auto;
   }
 }

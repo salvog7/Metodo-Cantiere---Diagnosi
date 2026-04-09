@@ -4,13 +4,22 @@ import { useEffect, useState, useCallback, useRef, useMemo } from 'react'
 import { useParams } from 'next/navigation'
 import { DiagnosiViewer } from '@/components/diagnosi-viewer'
 import { displayDiagnosiContent } from '@/lib/diagnosi-content'
+import { exportElementToPdf } from '@/lib/export-diagnosi-pdf'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import type { DiagnosiProgresso } from '@/lib/types'
 import { DiagnosiProgressoIndicator } from '@/components/diagnosi-progresso-indicator'
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable'
-import { Pencil, Eye, Save, Loader2, CheckCircle, AlertCircle, FileDown } from 'lucide-react'
+import {
+  Pencil,
+  Eye,
+  Save,
+  Loader2,
+  CheckCircle,
+  AlertCircle,
+  FileDown,
+} from 'lucide-react'
 
 interface DiagnosiData {
   id: string
@@ -215,18 +224,8 @@ export default function ReviewPage() {
     if (!contentRef.current || !diagnosi) return
     setIsExporting(true)
     try {
-      const html2pdf = (await import('html2pdf.js')).default
       const filename = `diagnosi-${diagnosi.tipo}-${new Date().toISOString().slice(0, 10)}.pdf`
-      await html2pdf()
-        .set({
-          margin: [10, 10, 10, 10],
-          filename,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        })
-        .from(contentRef.current)
-        .save()
+      await exportElementToPdf(contentRef.current, filename)
     } catch (err) {
       console.error('Errore durante l\'esportazione PDF:', err)
     } finally {
@@ -267,10 +266,10 @@ export default function ReviewPage() {
   const isStrategica = diagnosi.tipo === 'diagnosi_strategica'
 
   return (
-    <div className="min-h-screen bg-neutral-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
+    <div className="min-h-screen bg-neutral-50 py-8 print:bg-white print:py-0">
+      <div className="max-w-4xl mx-auto px-4 print:max-w-none print:px-0">
         {/* Header */}
-        <div className="mb-6">
+        <div className="mb-6 print:hidden">
           <h1 className="text-2xl font-bold text-neutral-900">
             Review: {tipoLabel} Metodo Cantiere®
           </h1>
@@ -285,7 +284,7 @@ export default function ReviewPage() {
         </div>
 
         {/* Controls bar */}
-        <div className="bg-white rounded-xl shadow border border-neutral-200 p-4 mb-6 flex flex-wrap items-center gap-4 justify-between">
+        <div className="bg-white rounded-xl shadow border border-neutral-200 p-4 mb-6 flex flex-wrap items-center gap-4 justify-between print:hidden">
           <div className="flex items-center gap-4">
             <Button
               variant={editing ? 'default' : 'outline'}
@@ -376,8 +375,9 @@ export default function ReviewPage() {
         </div>
 
         {/* Content */}
-        <div className="bg-white rounded-xl shadow-lg border border-neutral-200 p-8 md:p-12 relative">
+        <div className="bg-white rounded-xl shadow-lg border border-neutral-200 p-8 md:p-12 relative print:shadow-none print:border-0 print:rounded-none print:p-0">
           {editing ? (
+            <div className="print:hidden">
             <ResizablePanelGroup direction="horizontal" className="min-h-[600px]">
               <ResizablePanel defaultSize={50} minSize={30}>
                 {isStrategica ? (
@@ -415,6 +415,9 @@ export default function ReviewPage() {
               <ResizableHandle withHandle />
               <ResizablePanel defaultSize={50} minSize={30}>
                 <div className="min-h-[600px] h-full overflow-auto border border-input rounded-r-lg bg-background p-6">
+                  <div className="flex justify-center mb-4">
+                    <img src="/images/1.png" alt="Metodo Cantiere" className="h-12 w-auto" />
+                  </div>
                   <div className="mb-6 pb-4 border-b border-neutral-200">
                     <p className="text-sm text-neutral-500 font-medium">Anteprima (documento unico)</p>
                   </div>
@@ -422,11 +425,15 @@ export default function ReviewPage() {
                 </div>
               </ResizablePanel>
             </ResizablePanelGroup>
+            </div>
           ) : (
             <>
               {rowHasDisplayContent(diagnosi) ? (
                 <div ref={contentRef} className="pdf-content">
-                  <div className="mb-8 pb-6 border-b border-neutral-200">
+                  <div className="flex justify-center mb-6">
+                    <img src="/images/1.png" alt="Metodo Cantiere" className="h-16 w-auto" />
+                  </div>
+                  <div className="mb-8 pb-6 border-b border-neutral-200 print:pr-0">
                     <h1 className="text-3xl font-bold text-neutral-900">
                       {tipoLabel} Metodo Cantiere®
                     </h1>

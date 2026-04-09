@@ -101,9 +101,9 @@ export default async function DiagnosiPage({
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50 py-12">
-      <div className="max-w-4xl mx-auto px-4">
-        <div className="flex flex-col items-center justify-center mb-10">
+    <div className="min-h-screen bg-neutral-50 py-12 print:bg-white print:py-0">
+      <div className="max-w-4xl mx-auto px-4 print:max-w-none print:px-0">
+        <div className="flex flex-col items-center justify-center mb-10 print:hidden">
           <Image
             src="/logo-metodo-cantiere.png"
             alt="Metodo Cantiere"
@@ -114,7 +114,7 @@ export default async function DiagnosiPage({
           />
         </div>
 
-        <div className="mb-6 flex justify-start">
+        <div className="mb-6 flex justify-start print:hidden">
           <Link
             href="/prodotti"
             className="inline-flex items-center justify-center rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100 transition-colors"
